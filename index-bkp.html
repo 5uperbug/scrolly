@@ -1,0 +1,90 @@
+<!doctype html>
+<html ng-app="app">
+
+<head>
+  <title>Detect End Of Scrolling</title>
+  <style type="text/css">
+  body {
+    min-height: 2000px
+  }
+  .parentDiv {
+    background-color: pink;
+    height: 200px;
+    width: 100%;
+    overflow-y: scroll;
+  }
+
+  .innerDiv {
+    background-color: yellow;
+    height: 400px;
+    width: 50%;
+  }
+  </style>
+</head>
+
+<body ng-controller="ctrl">
+  <div onscroll="scrolled(this)" class="parentDiv">
+    <div class="innerDiv"></div>
+  </div>
+  <hr>
+  <div>
+    <div>
+      <div class="parentDiv" scrolly="showMore()" scrolly-page="showPageEnd()">
+        <div class="innerDiv"></div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.min.js"></script>
+  <script>
+  var myApp = angular.module('app', []);
+
+  myApp.directive('scrolly', function() {
+    return {
+      restrict: 'A',
+      link: function(scope, element, attrs) {
+        var raw = element[0];
+        element.bind('scroll', function() {
+          //visible height + pixel scrolled = total height
+          if (raw.scrollTop + raw.offsetHeight >= raw.scrollHeight) {
+            scope.$apply(attrs.scrolly);
+          }
+        });
+      }
+    };
+  });
+
+  myApp.directive('scrollyPage', function($document) {
+    return {
+      restrict: 'A',
+      link: function (scope, element, attrs) {
+        $document.bind('scroll', function () {
+          //visible height + pixel scrolled = total height
+          if ((document.body.offsetHeight + document.body.scrollTop) >= document.body.scrollHeight) {
+            scope.$apply(attrs.scrollyPage);
+          }
+        });
+      }
+    };
+  });
+
+  myApp.controller('ctrl', ['$scope', function($scope) {
+    $scope.showMore = function() {
+      alert('show more triggered');
+    };
+
+    $scope.showPageEnd = function() {
+      console.log('Page end');
+    }
+  }]);
+  </script>
+  <script type="text/javascript">
+  function scrolled(o) {
+    //visible height + pixel scrolled = total height
+    if (o.offsetHeight + o.scrollTop === o.scrollHeight) {
+      alert("End");
+    }
+  }
+  </script>
+</body>
+
+</html>

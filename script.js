@@ -1,25 +1,51 @@
-setInterval(function() {
-  var totalHeight, currentScroll, visibleHeight;
+var myApp = angular.module('app', []);
 
-  if (document.documentElement.scrollTop)
-    { currentScroll = document.documentElement.scrollTop; }
-  else
-    { currentScroll = document.body.scrollTop; }
+myApp.directive('scrolly', function($document) {
+  return {
+    restrict: 'A',
+    link: function(scope, element, attrs) {
+      var raw = element[0];
+      if(attrs.scrollMode === "page") {
+        console.log(attrs.scrollMode);
+        $document.bind('scroll', function () {
+          //visible height + pixels scrolled = total height
+          if ((window.innerHeight + document.body.scrollTop) >= document.body.scrollHeight) {
+            scope.$apply(attrs.scrolly);
+          }
+        });
+      } else if(attrs.scrollMode === "element") {
+        console.log(attrs.scrollMode);
+        element.bind('scroll', function() {
+          //visible height + pixels scrolled = total height
+          if (raw.scrollTop + raw.offsetHeight >= raw.scrollHeight) {
+            scope.$apply(attrs.scrolly);
+          }
+        });
+      };
+    }
+  };
+});
 
-  totalHeight = document.body.offsetHeight;
-  visibleHeight = document.documentElement.clientHeight;
+myApp.directive('scrollyPage', function($document) {
+  return {
+    restrict: 'A',
+    link: function (scope, element, attrs) {
+      $document.bind('scroll', function () {
+        //visible height + pixel scrolled = total height
+        if ((window.innerHeight + document.body.scrollTop) >= document.body.scrollHeight) {
+          scope.$apply(attrs.scrollyPage);
+        }
+      });
+    }
+  };
+});
 
-  $('#data').html(
-    'total height: ' + totalHeight + '<br />' +
-    'visibleHeight : ' + visibleHeight + '<br />' +
-    'currentScroll:' + currentScroll);
-  if (totalHeight <= currentScroll + visibleHeight )
-  {
-    $('#data').addClass('hilite');
+myApp.controller('ctrl', ['$scope', function($scope) {
+  $scope.showMore = function() {
+    alert('show more triggered');
+  };
+
+  $scope.showPageEnd = function() {
+    console.log('Page end');
   }
-  else
-  {
-    $('#data').removeClass('hilite');
-  }
-
-}, 100);
+}]);
